@@ -41,4 +41,8 @@ public class DataQueue {
     return data.length;
   }
 
+  public synchronized int getFirst(){
+    return data[0];
+  }
+
 }

@@ -17,6 +17,8 @@ public class ParseThread extends Thread implements Runnable {
       messageOne();
     }else if(data[0] == 2){
       messageTwo();
+    }else if(data[0] == 3){
+      messageThree();
     }
 
   }
@@ -59,6 +61,38 @@ public class ParseThread extends Thread implements Runnable {
     steerangle -= 40;
     System.out.println("steerangle: " + steerangle);
     carModel.setSteerAngle(steerangle);
+
+  }
+
+  private void messageThree(){
+
+    int batteryVoltage = data[1];
+    System.out.println("battery voltage: " + batteryVoltage);
+    carModel.setBatteryVoltage(batteryVoltage);
+
+    int coolantTemp = data[2];
+    System.out.println("engine coolant temperature: " + coolantTemp);
+    carModel.setEngineCoolantTemp(coolantTemp);
+
+    int oilTemp = data[3];
+    System.out.println("engine oil temperature: " + oilTemp);
+    carModel.setEngineOilTemp(oilTemp);
+
+    int intakeAirTemp = data[4] & 0b00111111;
+    System.out.println("intake air temperature: " + intakeAirTemp);
+    carModel.setIntakeAirTemp(intakeAirTemp);
+
+    int fuelTemp = data[5] & 0b00111111;
+    System.out.println("fuel temperature: " + fuelTemp);
+    carModel.setFuelTemp(fuelTemp);
+
+    int engineMap = data[6] >> 6;
+    System.out.println("engine Map:" + engineMap);
+    carModel.setEngineMap(engineMap);
+
+    int exhaustTemp = ((data[6] & 0b00000111) << 8) | data[7];
+    System.out.println("exhaust temperature: " + exhaustTemp);
+    carModel.setExhaustTemp(exhaustTemp);
 
   }
 

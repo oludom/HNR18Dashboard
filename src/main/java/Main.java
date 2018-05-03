@@ -1,58 +1,72 @@
-import jssc.SerialPort;
-import jssc.SerialPortException;
-import jssc.SerialPortList;
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.tools.FlowGridPane;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+public class Main extends Application implements CarModelListener{
 
-public class Main {
+
+  CarModel carModel = new CarModel();
+
+  private static final double TILE_SIZE = 150;
+
+  private Tile engineSpeed;
+
+  @Override
+  public void init() throws Exception {
+    super.init();
+
+    carModel.addCarModelListener(this);
+
+    ReceiverThread receiverThread = new ReceiverThread(carModel);
+    receiverThread.start();
+
+    engineSpeed = TileBuilder.create()
+        .prefSize(TILE_SIZE, TILE_SIZE)
+        .skinType(Tile.SkinType.GAUGE)
+        .title("Engine Speed")
+        .unit("rpm")
+        .threshold(11000)
+        .minValue(0)
+        .maxValue(11000d)
+        .build();
+
+    engineSpeed.setValue(5000);
+
+  }
+
+  @Override
+  public void start(Stage primaryStage) throws Exception {
+    FlowGridPane pane = new FlowGridPane(7, 6, engineSpeed);
+    pane.setHgap(5);
+    pane.setVgap(5);
+    pane.setPadding(new Insets(5));
+    pane.setBackground(new Background(new BackgroundFill(Tile.BACKGROUND.darker(), CornerRadii.EMPTY, Insets.EMPTY)));
+
+    Scene scene = new Scene(pane);
+
+    primaryStage.setTitle("HNN18 Dashboard");
+    primaryStage.setScene(scene);
+    primaryStage.show();
+
+  }
+
+  @Override public void stop() {
+    System.exit(0);
+  }
 
   public static void main(String[] args) {
+    launch(args);
+  }
 
-    // all available serial ports
-    String[] ports = SerialPortList.getPortNames();
-
-    DataQueue dataQueue = new DataQueue();
-    CarModel carModel = new CarModel();
-    WorkerThread workerThread = new WorkerThread(dataQueue, carModel);
-    workerThread.start();
-
-    System.out.println("available Serial Ports: ");
-
-    int i = 0;
-    for (String port : ports){
-      System.out.println(i++ + ": " + port);
-    }
-
-    InputStreamReader isr = new InputStreamReader(System.in);
-    BufferedReader keyb = new BufferedReader(isr);
-
-    try {
-      // get selection
-      String text = keyb.readLine();
-      int selection = Integer.parseInt(text);
-
-      try {
-        //Open serial port
-        SerialPort serialPort = new SerialPort(ports[selection]);
-        serialPort.openPort();
-        serialPort.setParams(115200, 8, 1, 0);//Set params.
-
-        // read byte by byte and add to queue
-        while (true) {
-          byte[] buffer = serialPort.readBytes(1);
-          if (buffer != null) {
-              int b = buffer[0] < 0 ? buffer[0] +256 : buffer[0];
-              dataQueue.push(b);
-
-          }
-        }
-      } catch (SerialPortException e) {
-        e.printStackTrace();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  @Override
+  public void onCarModelUpdate() {
+    engineSpeed.setValue(carModel.getEngineSpeed());
   }
 }
