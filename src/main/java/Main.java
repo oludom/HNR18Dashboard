@@ -4,14 +4,20 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.tools.FlowGridPane;
 import eu.hansolo.medusa.Gauge;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
+import jssc.SerialPortList;
 
 public class Main extends Application implements CarModelListener{
 
@@ -43,6 +49,9 @@ public class Main extends Application implements CarModelListener{
   private Tile exhaustTemp;
   private Gauge lambdaGauge;
   private Tile lambda;
+  private Tile selector;
+
+  private boolean firstSelection = true;
 
   private ReceiverThread receiverThread;
   private long animationDuration = 200;
@@ -53,8 +62,35 @@ public class Main extends Application implements CarModelListener{
 
     carModel.addCarModelListener(this);
 
-    receiverThread = new ReceiverThread(carModel);
-    receiverThread.start();
+    String[] ports = SerialPortList.getPortNames();
+    ObservableList<String> devices = FXCollections.observableArrayList();
+    devices.addAll(ports);
+    ListView<String> deviceView = new ListView<>(devices);
+
+    deviceView.getSelectionModel().selectedItemProperty()
+        .addListener(new ChangeListener<String>() {
+          public void changed(ObservableValue<? extends String> observable,
+                              String oldValue, String newValue) {
+            if(firstSelection){
+              firstSelection = false;
+              receiverThread = new ReceiverThread(carModel, newValue);
+              receiverThread.start();
+              deviceView.setMouseTransparent( true );
+              deviceView.setFocusTraversable( false );
+            }
+          }
+        });
+
+    deviceView.setStyle("-fx-control-inner-background: #2a2a2a; -fx-control-inner-text-fill: white;");
+
+    selector = TileBuilder.create()
+        .prefSize(TILE_SIZE, TILE_SIZE)
+        .skinType(Tile.SkinType.CUSTOM)
+        .title("serial port selector")
+        .text("")
+        .graphic(deviceView)
+        .roundedCorners(false)
+        .build();
 
     engineSpeed = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
@@ -234,7 +270,7 @@ public class Main extends Application implements CarModelListener{
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    FlowGridPane pane = new FlowGridPane(4, 6, engineSpeed, velocity, steerAngle, throttleValvePosition, gear,
+    FlowGridPane pane = new FlowGridPane(4, 6, selector, engineSpeed, velocity, steerAngle, throttleValvePosition, gear,
         engineOilTemp, engineOilPressure, intakeAirPressure, intakeAirTemp, batteryVoltage, engineCoolantTemp, fuelTemp, engineMap, exhaustTemp, lambda);
     pane.setHgap(5);
     pane.setVgap(5);
@@ -250,13 +286,14 @@ public class Main extends Application implements CarModelListener{
   }
 
   @Override public void stop() {
-    // TODO stop all threads
+    if(receiverThread != null){
       receiverThread.end();
       try {
         receiverThread.join();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+    }
     System.exit(0);
   }
 

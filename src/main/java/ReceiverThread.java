@@ -1,21 +1,16 @@
 import jssc.SerialPort;
 import jssc.SerialPortException;
-import jssc.SerialPortList;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class ReceiverThread extends Thread {
 
-  private CarModel carModel;
   private DataQueue dataQueue;
   private boolean run = false;
   private WorkerThread workerThread;
   private SerialPort serialPort;
+  private String selection;
 
-  public ReceiverThread(CarModel carModel){
-    this.carModel = carModel;
+  public ReceiverThread(CarModel carModel, String selection){
+    this.selection = selection;
     dataQueue = new DataQueue();
     workerThread = new WorkerThread(dataQueue, carModel);
   }
@@ -24,45 +19,24 @@ public class ReceiverThread extends Thread {
   public void run() {
     run = true;
 
-    // all available serial ports
-    String[] ports = SerialPortList.getPortNames();
-
     workerThread.start();
 
-    System.out.println("available Serial Ports: ");
-
-    int i = 0;
-    for (String port : ports){
-      System.out.println(i++ + ": " + port);
-    }
-
-    InputStreamReader isr = new InputStreamReader(System.in);
-    BufferedReader keyb = new BufferedReader(isr);
-
     try {
-      // get selection
-      String text = keyb.readLine();
-      int selection = Integer.parseInt(text);
+      //Open serial port
+      serialPort = new SerialPort(selection);
+      serialPort.openPort();
+      serialPort.setParams(115200, 8, 1, 0);//Set params.
 
-      try {
-        //Open serial port
-        serialPort = new SerialPort(ports[selection]);
-        serialPort.openPort();
-        serialPort.setParams(115200, 8, 1, 0);//Set params.
+      // read byte by byte and add to queue
+      while (run) {
+        byte[] buffer = serialPort.readBytes(1);
+        if (buffer != null) {
+            int b = buffer[0] < 0 ? buffer[0] +256 : buffer[0];
+            dataQueue.push(b);
 
-        // read byte by byte and add to queue
-        while (run) {
-          byte[] buffer = serialPort.readBytes(1);
-          if (buffer != null) {
-              int b = buffer[0] < 0 ? buffer[0] +256 : buffer[0];
-              dataQueue.push(b);
-
-          }
         }
-      } catch (SerialPortException e) {
-        e.printStackTrace();
       }
-    } catch (IOException e) {
+    } catch (SerialPortException e) {
       e.printStackTrace();
     }
 
@@ -86,7 +60,4 @@ public class ReceiverThread extends Thread {
     }
   }
 
-  public synchronized boolean isRun() {
-    return run;
-  }
 }
