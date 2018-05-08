@@ -3,17 +3,17 @@ public class WorkerThread extends Thread implements Runnable{
 
   private DataQueue dataQueue;
   private CarModel carModel;
-  private boolean run;
+  private boolean run = false;
 
   public WorkerThread(DataQueue dq, CarModel cm){
     dataQueue = dq;
     carModel = cm;
-    run = true;
   }
 
 
   @Override
   public void run() {
+    run = true;
     while(run){
       // mindestens eine volle Nachricht
       if(dataQueue.getLength() > 5){

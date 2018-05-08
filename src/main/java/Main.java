@@ -251,12 +251,12 @@ public class Main extends Application implements CarModelListener{
 
   @Override public void stop() {
     // TODO stop all threads
-    receiverThread.end();
-    try {
-      receiverThread.join();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+      receiverThread.end();
+      try {
+        receiverThread.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     System.exit(0);
   }
 

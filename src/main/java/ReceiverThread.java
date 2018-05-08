@@ -10,7 +10,7 @@ public class ReceiverThread extends Thread {
 
   private CarModel carModel;
   private DataQueue dataQueue;
-  private boolean run;
+  private boolean run = false;
   private WorkerThread workerThread;
   private SerialPort serialPort;
 
@@ -18,11 +18,11 @@ public class ReceiverThread extends Thread {
     this.carModel = carModel;
     dataQueue = new DataQueue();
     workerThread = new WorkerThread(dataQueue, carModel);
-    run = true;
   }
 
   @Override
   public void run() {
+    run = true;
 
     // all available serial ports
     String[] ports = SerialPortList.getPortNames();
@@ -69,17 +69,24 @@ public class ReceiverThread extends Thread {
   }
 
   public void end(){
-    run = false;
-    workerThread.end();
-    try {
-      workerThread.join();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    if(run){
+      run = false;
+      workerThread.end();
+      try {
+        workerThread.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      try {
+        if(serialPort != null)
+          serialPort.closePort();
+      } catch (SerialPortException e) {
+        System.out.println("could not close serial port.");
+      }
     }
-    try {
-      serialPort.closePort();
-    } catch (SerialPortException e) {
-      System.out.println("could not close serial port.");
-    }
+  }
+
+  public synchronized boolean isRun() {
+    return run;
   }
 }
