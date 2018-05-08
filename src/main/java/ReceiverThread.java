@@ -25,7 +25,7 @@ public class ReceiverThread extends Thread {
       //Open serial port
       serialPort = new SerialPort(selection);
       serialPort.openPort();
-      serialPort.setParams(115200, 8, 1, 0);//Set params.
+      serialPort.setParams(9600, 8, 1, 0);//Set params.
 
       // read byte by byte and add to queue
       while (run) {
