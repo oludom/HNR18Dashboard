@@ -9,9 +9,16 @@ import java.io.InputStreamReader;
 public class ReceiverThread extends Thread {
 
   private CarModel carModel;
+  private DataQueue dataQueue;
+  private boolean run;
+  private WorkerThread workerThread;
+  private SerialPort serialPort;
 
   public ReceiverThread(CarModel carModel){
     this.carModel = carModel;
+    dataQueue = new DataQueue();
+    workerThread = new WorkerThread(dataQueue, carModel);
+    run = true;
   }
 
   @Override
@@ -20,9 +27,6 @@ public class ReceiverThread extends Thread {
     // all available serial ports
     String[] ports = SerialPortList.getPortNames();
 
-    DataQueue dataQueue = new DataQueue();
-
-    WorkerThread workerThread = new WorkerThread(dataQueue, carModel);
     workerThread.start();
 
     System.out.println("available Serial Ports: ");
@@ -42,12 +46,12 @@ public class ReceiverThread extends Thread {
 
       try {
         //Open serial port
-        SerialPort serialPort = new SerialPort(ports[selection]);
+        serialPort = new SerialPort(ports[selection]);
         serialPort.openPort();
         serialPort.setParams(115200, 8, 1, 0);//Set params.
 
         // read byte by byte and add to queue
-        while (true) {
+        while (run) {
           byte[] buffer = serialPort.readBytes(1);
           if (buffer != null) {
               int b = buffer[0] < 0 ? buffer[0] +256 : buffer[0];
@@ -62,5 +66,20 @@ public class ReceiverThread extends Thread {
       e.printStackTrace();
     }
 
+  }
+
+  public void end(){
+    run = false;
+    workerThread.end();
+    try {
+      workerThread.join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    try {
+      serialPort.closePort();
+    } catch (SerialPortException e) {
+      System.out.println("could not close serial port.");
+    }
   }
 }

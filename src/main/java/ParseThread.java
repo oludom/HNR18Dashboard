@@ -46,19 +46,19 @@ public class ParseThread extends Thread implements Runnable {
   private void messageTwo(){
 
     int oil = (data[1] << 1) | (data[2] >> 7);
-    System.out.println("engine oil pressure: " + oil);
-    carModel.setEngineOilPressure(oil);
+    System.out.println("engine oil pressure: " + oil/100);
+    carModel.setEngineOilPressure(oil/100);
 
     int speed = data[2] & 0b01111111;
     System.out.println("speed: " + speed);
     carModel.setVelocity(speed);
 
     int exhaust = (data[3] << 3) | (data[4] >> 5);
-    System.out.println("exhaust: " + exhaust);
-    carModel.setLambdaExhaust(exhaust);
+    System.out.println("exhaust: " + (exhaust + 500)/1000);
+    carModel.setLambdaExhaust((exhaust + 500)/1000);
 
-    int steerangle = data[5] & 0b01111111;
-    steerangle -= 40;
+    int steerangle = (data[5] & 0b01111111);
+    steerangle = steerangle - 40;
     System.out.println("steerangle: " + steerangle);
     carModel.setSteerAngle(steerangle);
 
@@ -67,8 +67,8 @@ public class ParseThread extends Thread implements Runnable {
   private void messageThree(){
 
     int batteryVoltage = data[1];
-    System.out.println("battery voltage: " + batteryVoltage);
-    carModel.setBatteryVoltage(batteryVoltage);
+    System.out.println("battery voltage: " + batteryVoltage/10);
+    carModel.setBatteryVoltage(batteryVoltage/10);
 
     int coolantTemp = data[2];
     System.out.println("engine coolant temperature: " + coolantTemp);
