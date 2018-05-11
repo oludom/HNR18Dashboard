@@ -27,7 +27,6 @@ public class Main extends Application implements CarModelListener{
   private static final double TILE_SIZE = 150;
 
   private Tile engineSpeed;
-  private Tile velocity;
   private Gauge SAindicatorGauge;
   private Tile steerAngle;
   private Tile throttleValvePosition;
@@ -47,9 +46,13 @@ public class Main extends Application implements CarModelListener{
   private Tile engineMap;
   private Gauge exhaustTempGauge;
   private Tile exhaustTemp;
+  private Tile selector;
+
+  private Tile numberTile;
+  private Gauge velocityGauge;
+  private Tile velocity;
   private Gauge lambdaGauge;
   private Tile lambda;
-  private Tile selector;
 
   private boolean firstSelection = true;
 
@@ -104,17 +107,15 @@ public class Main extends Application implements CarModelListener{
         .animationDuration(animationDuration)
         .build();
 
-    velocity = TileBuilder.create()
+    velocityGauge = createGauge(Gauge.SkinType.DIGITAL, 0, 127, "kph", 0);
+    velocity  = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
-        .skinType(Tile.SkinType.GAUGE)
-        .title("velocity")
-        .unit("kph")
-        .threshold(100)
-        .minValue(0d)
-        .maxValue(127d)
-        .decimals(0)
-        .animationDuration(animationDuration)
+        .skinType(Tile.SkinType.CUSTOM)
+        .title("Medusa Digital")
+        .text("Temperature")
+        .graphic(velocityGauge)
         .build();
+
 
     SAindicatorGauge = createGauge(Gauge.SkinType.INDICATOR, -40, 40, "\u00B0C", 0);
     steerAngle = TileBuilder.create()
@@ -159,6 +160,7 @@ public class Main extends Application implements CarModelListener{
         .textVisible(false)
         .averagingPeriod(25)
         .autoReferenceValue(true)
+        .decimals(0)
         .barColor(Tile.YELLOW_ORANGE)
         .barBackgroundColor(Color.rgb(255, 255, 255, 0.1))
         .sections(new eu.hansolo.tilesfx.Section(0, 80, Tile.BLUE),
@@ -253,13 +255,16 @@ public class Main extends Application implements CarModelListener{
         .graphic(exhaustTempGauge)
         .build();
 
-    lambdaGauge = createGauge(Gauge.SkinType.DIGITAL, .5, 1.8, "", 3);
-    lambda  = TileBuilder.create()
+    lambda = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
-        .skinType(Tile.SkinType.CUSTOM)
-        .title("Lambda exhaust")
+        .skinType(Tile.SkinType.NUMBER)
+        .title("lambda")
         .text("")
-        .graphic(lambdaGauge)
+        .decimals(3)
+        .value(.8)
+        .unit("")
+        .description("")
+        .textVisible(false)
         .build();
 
   }
@@ -304,7 +309,7 @@ public class Main extends Application implements CarModelListener{
   @Override
   public void onCarModelUpdate() {
     engineSpeed.setValue(carModel.getEngineSpeed());
-    velocity.setValue(carModel.getVelocity());
+    velocityGauge.setValue(carModel.getVelocity());
     SAindicatorGauge.setValue(carModel.getSteerAngle());
     throttleValvePosition.setValue(carModel.getThrottleValvePosition());
     gear.setValue(carModel.getGear());
@@ -317,7 +322,7 @@ public class Main extends Application implements CarModelListener{
     fuelTempGauge.setValue(carModel.getFuelTemp());
     engineMap.setValue(carModel.getEngineMap());
     exhaustTempGauge.setValue(carModel.getExhaustTemp());
-    lambdaGauge.setValue(carModel.getLambdaExhaust());
+    lambda.setValue(carModel.getLambdaExhaust());
   }
 
   private Gauge createGauge(final Gauge.SkinType TYPE, final double min, final double max, String unit, int decimals) {

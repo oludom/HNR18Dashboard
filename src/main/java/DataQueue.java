@@ -44,5 +44,11 @@ public class DataQueue {
   public synchronized int getFirst(){
     return data[0];
   }
+  public synchronized int getSecond(){
+    return data[1];
+  }
+  public synchronized int getThird(){
+    return data[2];
+  }
 
 }

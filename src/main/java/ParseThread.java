@@ -54,8 +54,10 @@ public class ParseThread extends Thread implements Runnable {
     carModel.setVelocity(speed);
 
     int exhaust = (data[3] << 3) | (data[4] >> 5);
-    System.out.println("exhaust: " + (exhaust + 500)/1000);
-    carModel.setLambdaExhaust((exhaust + 500)/1000);
+    float ex = exhaust + 500;
+    ex /= 1000;
+    System.out.println("exhaust: " + ex);
+    carModel.setLambdaExhaust(ex);
 
     int steerangle = (data[5] & 0b01111111);
     steerangle = steerangle - 40;
@@ -67,8 +69,10 @@ public class ParseThread extends Thread implements Runnable {
   private void messageThree(){
 
     int batteryVoltage = data[1];
-    System.out.println("battery voltage: " + batteryVoltage/10);
-    carModel.setBatteryVoltage(batteryVoltage/10);
+    float bV = batteryVoltage;
+    bV /= 10;
+    System.out.println("battery voltage: " + bV);
+    carModel.setBatteryVoltage(bV);
 
     int coolantTemp = data[2];
     System.out.println("engine coolant temperature: " + coolantTemp);
