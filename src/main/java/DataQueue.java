@@ -44,11 +44,37 @@ public class DataQueue {
   public synchronized int getFirst(){
     return data[0];
   }
-  public synchronized int getSecond(){
-    return data[1];
+
+  public synchronized int getElement(int i){
+    return data[i];
   }
-  public synchronized int getThird(){
-    return data[2];
+
+  public synchronized int[] getUntilFF(){
+
+    // data array has to be long enough
+    if(data.length<2) return new int[0];
+
+    // consume until first FF
+    while (data[0] != 255 || data[1] != 255){
+      pop(1);
+      if(data.length<2) return new int[0];
+    }
+
+    int fIndex = 0;
+
+    // get index of next FF
+    for(int i = 2; i<data.length-1; i++){
+      if(data[i] == 255 && data[i+1] == 255){
+        fIndex = i;
+        break;
+      }
+    }
+
+    if(fIndex > 2){
+      return pop(fIndex);
+    }else return new int[0];
+
   }
+
 
 }

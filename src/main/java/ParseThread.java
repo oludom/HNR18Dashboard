@@ -13,11 +13,11 @@ public class ParseThread extends Thread implements Runnable {
   @Override
   public void run() {
 
-    if(data[0] == 1){
+    if(data[0] == 17){
       messageOne();
-    }else if(data[0] == 2){
+    }else if(data[0] == 34){
       messageTwo();
-    }else if(data[0] == 3){
+    }else if(data[0] == 51){
       messageThree();
     }
 
