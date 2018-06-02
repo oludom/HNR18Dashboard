@@ -13,90 +13,102 @@ public class ParseThread extends Thread implements Runnable {
   @Override
   public void run() {
 
-    if(data[0] == 17){
+    if(data[0] == 17){        // 0x11
       messageOne();
-    }else if(data[0] == 34){
+    }else if(data[0] == 51){  // 0x33
       messageTwo();
-    }else if(data[0] == 51){
+    }else if(data[0] == 85){  // 0x55
       messageThree();
+    }else if(data[0] == 102){ // 0x66
+      messageFour();
     }
 
   }
 
   private void messageOne(){
 
-    int engineSpeed = ((data[1] << 8) | data[2]) >> 2;
+    int engineSpeed = ((data[1] << 8) | data[2]) ;
     System.out.println("engine speed: " + engineSpeed);
     carModel.setEngineSpeed(engineSpeed);
 
-    int gear = (data[3]>>5);
+    int gear = data[3];
     System.out.println("gear: " +gear);
     carModel.setGear(gear);
 
-    int intake = ((0b111 & data[3]) << 8) | data[4];
-    System.out.println("intake air pressure: " + intake);
-    carModel.setIntakeAirPressure(intake);
+    int intake = (data[4] << 8) | data[5];
+    System.out.println("intake air pressure: " + intake/10);
+    carModel.setIntakeAirPressure(intake/10);
 
-    int throttle = 0b01111111 & data[5];
-    System.out.println("throttle valve position: " + throttle);
-    carModel.setThrottleValvePosition(throttle);
+    int throttle = (data[6] << 8) | data[5];
+    System.out.println("throttle valve position: " + throttle/100);
+    carModel.setThrottleValvePosition(throttle/100);
 
   }
 
   private void messageTwo(){
 
-    int oil = (data[1] << 1) | (data[2] >> 7);
-    System.out.println("engine oil pressure: " + oil/100);
-    carModel.setEngineOilPressure(oil/100);
+    int speed = (data[1] << 8) | data[2];
+    System.out.println("speed: " + speed/100);
+    carModel.setVelocity(speed/100);
 
-    int speed = data[2] & 0b01111111;
-    System.out.println("speed: " + speed);
-    carModel.setVelocity(speed);
+    int oil = data[3];
+    System.out.println("engine oil pressure: " + oil*.05);
+    carModel.setEngineOilPressure(oil*.05F);
 
-    int exhaust = (data[3] << 3) | (data[4] >> 5);
-    float ex = exhaust + 500;
-    ex /= 1000;
-    System.out.println("exhaust: " + ex);
-    carModel.setLambdaExhaust(ex);
 
-    int steerangle = (data[5] & 0b01111111);
-    steerangle = steerangle - 40;
-    System.out.println("steerangle: " + steerangle);
-    carModel.setSteerAngle(steerangle);
+
+    int exhaust = (data[4] << 8) | data[5];
+//    float ex = exhaust + 500;
+//    ex /= 1000;
+    System.out.println("exhaust: " + exhaust*.01);
+    carModel.setLambdaExhaust(exhaust*.01F);
+
+    int steerangle = (data[6] << 8) | data[7];
+    if(steerangle>=0x8000){
+      steerangle -= 0x8000;
+      steerangle *= -1;
+    }
+//    steerangle = steerangle - 40;
+    System.out.println("steerangle: " + steerangle/100);
+    carModel.setSteerAngle(steerangle/100);
 
   }
 
   private void messageThree(){
 
-    int batteryVoltage = data[1];
-    float bV = batteryVoltage;
-    bV /= 10;
-    System.out.println("battery voltage: " + bV);
-    carModel.setBatteryVoltage(bV);
+    int oilTemp = data[1];
+    System.out.println("engine oil temperature: " + (oilTemp-40));
+    carModel.setEngineOilTemp(oilTemp-40);
 
-    int coolantTemp = data[2];
-    System.out.println("engine coolant temperature: " + coolantTemp);
-    carModel.setEngineCoolantTemp(coolantTemp);
+    int intakeAirTemp = data[2];
+    System.out.println("intake air temperature: " + (intakeAirTemp-40));
+    carModel.setIntakeAirTemp(intakeAirTemp-40);
 
-    int oilTemp = data[3];
-    System.out.println("engine oil temperature: " + oilTemp);
-    carModel.setEngineOilTemp(oilTemp);
+    int coolantTemp = data[3];
+    System.out.println("engine coolant temperature: " + (coolantTemp-40));
+    carModel.setEngineCoolantTemp(coolantTemp-40);
 
-    int intakeAirTemp = data[4] & 0b00111111;
-    System.out.println("intake air temperature: " + intakeAirTemp);
-    carModel.setIntakeAirTemp(intakeAirTemp);
-
-    int fuelTemp = data[5] & 0b00111111;
-    System.out.println("fuel temperature: " + fuelTemp);
-    carModel.setFuelTemp(fuelTemp);
-
-    int engineMap = data[6] >> 6;
+    int engineMap = data[4];
     System.out.println("engine Map:" + engineMap);
     carModel.setEngineMap(engineMap);
 
-    int exhaustTemp = ((data[6] & 0b00000111) << 8) | data[7];
-    System.out.println("exhaust temperature: " + exhaustTemp);
-    carModel.setExhaustTemp(exhaustTemp);
+    int fuelTemp = data[5];
+    System.out.println("fuel temperature: " + (fuelTemp-40));
+    carModel.setFuelTemp(fuelTemp-40);
+
+  }
+
+  private void messageFour(){
+
+    int batteryVoltage = (data[1] << 8 ) | data[2];
+    float bV = batteryVoltage;
+    bV /= 1000;
+    System.out.println("battery voltage: " + bV);
+    carModel.setBatteryVoltage(bV);
+
+    int exhaustTemp = (data[3] << 8) | data[4];
+    System.out.println("exhaust temperature: " + exhaustTemp/10);
+    carModel.setExhaustTemp(exhaustTemp/10);
 
   }
 

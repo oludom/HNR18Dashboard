@@ -21,8 +21,14 @@ public class WorkerThread extends Thread implements Runnable{
 
       if(queue.length <1) continue;
 
-      // short message
-      if(queue.length == 8 && (queue[2] == 17 || queue[2] == 34)){
+
+      if(queue.length == 7 && queue[2] == 102){
+        System.out.println();
+        System.out.println("message num: " + queue[2]);
+        System.arraycopy(queue, 2, queue, 0, 5);
+        ParseThread parseThread = new ParseThread(queue, carModel);
+        parseThread.start();
+      }else if(queue.length == 8 && queue[2] == 85){
         System.out.println();
         System.out.println("message num: " + queue[2]);
         System.arraycopy(queue, 2, queue, 0, 6);
@@ -30,14 +36,14 @@ public class WorkerThread extends Thread implements Runnable{
         parseThread.start();
       }
       // long message
-      else if(queue.length == 10 && queue[2] == 51){
-        System.out.println();
-        System.out.println("message num: " + queue[2]);
-        System.arraycopy(queue, 2, queue, 0, 8);
-        ParseThread parseThread = new ParseThread(queue, carModel);
-        parseThread.start();
-      }else{
-        // message might be corrupt
+      else if(queue.length == 10 && (queue[2] == 17 || queue[2] == 51)){
+          System.out.println();
+          System.out.println("message num: " + queue[2]);
+          System.arraycopy(queue, 2, queue, 0, 8);
+          ParseThread parseThread = new ParseThread(queue, carModel);
+          parseThread.start();
+      }else {
+        // consume faulty message
       }
 
 

@@ -111,7 +111,7 @@ public class Main extends Application implements CarModelListener{
     velocity  = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
-        .title("Medusa Digital")
+        .title("Velocity")
         .text("Temperature")
         .graphic(velocityGauge)
         .build();
