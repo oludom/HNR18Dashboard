@@ -55,6 +55,8 @@ public class CarModel {
   // 0 to 1100, res: 1
   private int exhaustTemp;
 
+  private float fuelPressure;
+
 
 
 
@@ -193,6 +195,13 @@ public class CarModel {
     onCarModelUpdate();
   }
 
+  public synchronized float getFuelPressure() {
+    return fuelPressure;
+  }
+
+  public synchronized void setFuelPressure(float fuelPressure) {
+    this.fuelPressure = fuelPressure;
+  }
 
   public void addCarModelListener(CarModelListener carModelListener){
     carModelListeners.add(carModelListener);

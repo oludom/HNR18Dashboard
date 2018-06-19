@@ -19,12 +19,18 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
 import jssc.SerialPortList;
 
-public class Main extends Application implements CarModelListener{
+import java.awt.*;
+
+public class Main extends Application implements CarModelListener {
 
 
   CarModel carModel = new CarModel();
 
-  private static final double TILE_SIZE = 150;
+  // get screen width
+  private static GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+  private static int width = gd.getDisplayMode().getWidth();
+
+  private static final double TILE_SIZE = width / 6;
 
   private Tile engineSpeed;
   private Gauge SAindicatorGauge;
@@ -48,11 +54,11 @@ public class Main extends Application implements CarModelListener{
   private Tile exhaustTemp;
   private Tile selector;
 
-  private Tile numberTile;
   private Gauge velocityGauge;
   private Tile velocity;
-  private Gauge lambdaGauge;
   private Tile lambda;
+  private Gauge fuelPressureGauge;
+  private Tile fuelPressure;
 
   private boolean firstSelection = true;
 
@@ -74,12 +80,12 @@ public class Main extends Application implements CarModelListener{
         .addListener(new ChangeListener<String>() {
           public void changed(ObservableValue<? extends String> observable,
                               String oldValue, String newValue) {
-            if(firstSelection){
+            if (firstSelection) {
               firstSelection = false;
               receiverThread = new ReceiverThread(carModel, newValue);
               receiverThread.start();
-              deviceView.setMouseTransparent( true );
-              deviceView.setFocusTraversable( false );
+              deviceView.setMouseTransparent(true);
+              deviceView.setFocusTraversable(false);
             }
           }
         });
@@ -108,7 +114,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     velocityGauge = createGauge(Gauge.SkinType.DIGITAL, 0, 127, "kph", 0);
-    velocity  = TileBuilder.create()
+    velocity = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("Velocity")
@@ -171,14 +177,14 @@ public class Main extends Application implements CarModelListener{
         .strokeWithGradient(true)
         .gradientStops(new Stop(0.0, Tile.BLUE),
             new Stop(0.33, Tile.BLUE),
-            new Stop(0.33,Tile.YELLOW),
+            new Stop(0.33, Tile.YELLOW),
             new Stop(0.67, Tile.YELLOW),
             new Stop(0.67, Tile.LIGHT_RED),
             new Stop(1.0, Tile.LIGHT_RED))
         .build();
 
     engineOilPressureGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 5, "bar", 2);
-    engineOilPressure  = TileBuilder.create()
+    engineOilPressure = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("engine oil pressure")
@@ -188,7 +194,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     intakeAirPressureGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 1200, "mbar", 0);
-    intakeAirPressure  = TileBuilder.create()
+    intakeAirPressure = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("intake air pressure")
@@ -198,7 +204,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     intakeAirTempGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 50, "\u00B0C", 0);
-    intakeAirTemp  = TileBuilder.create()
+    intakeAirTemp = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("intake air temperature")
@@ -217,7 +223,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     engineCoolantTempGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 140, "\u00B0C", 0);
-    engineCoolantTemp  = TileBuilder.create()
+    engineCoolantTemp = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("engine coolant temperature")
@@ -226,7 +232,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     fuelTempGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 50, "\u00B0C", 0);
-    fuelTemp  = TileBuilder.create()
+    fuelTemp = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("fuel temperature")
@@ -247,7 +253,7 @@ public class Main extends Application implements CarModelListener{
         .build();
 
     exhaustTempGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 1100, "\u00B0C", 0);
-    exhaustTemp  = TileBuilder.create()
+    exhaustTemp = TileBuilder.create()
         .prefSize(TILE_SIZE, TILE_SIZE)
         .skinType(Tile.SkinType.CUSTOM)
         .title("exhaust temperature")
@@ -267,16 +273,23 @@ public class Main extends Application implements CarModelListener{
         .textVisible(false)
         .build();
 
+    fuelPressureGauge = createGauge(Gauge.SkinType.SIMPLE_DIGITAL, 0, 12.75F, "bar", 2);
+    fuelPressure = TileBuilder.create()
+        .prefSize(TILE_SIZE, TILE_SIZE)
+        .skinType(Tile.SkinType.CUSTOM)
+        .title("fuel pressure")
+        .text("")
+        .decimals(2)
+        .graphic(fuelPressureGauge)
+        .build();
+
   }
-
-
-
 
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    FlowGridPane pane = new FlowGridPane(4, 6, selector, engineSpeed, velocity, steerAngle, throttleValvePosition, gear,
-        engineOilTemp, engineOilPressure, intakeAirPressure, intakeAirTemp, batteryVoltage, engineCoolantTemp, fuelTemp, engineMap, exhaustTemp, lambda);
+    FlowGridPane pane = new FlowGridPane(6, 3, selector, engineSpeed, velocity, steerAngle, throttleValvePosition, gear,
+        engineOilTemp, engineOilPressure, intakeAirPressure, intakeAirTemp, batteryVoltage, engineCoolantTemp, fuelTemp, engineMap, exhaustTemp, lambda, fuelPressure);
     pane.setHgap(5);
     pane.setVgap(5);
     pane.setPadding(new Insets(5));
@@ -290,8 +303,9 @@ public class Main extends Application implements CarModelListener{
 
   }
 
-  @Override public void stop() {
-    if(receiverThread != null){
+  @Override
+  public void stop() {
+    if (receiverThread != null) {
       receiverThread.end();
       try {
         receiverThread.join();
@@ -323,6 +337,7 @@ public class Main extends Application implements CarModelListener{
     engineMap.setValue(carModel.getEngineMap());
     exhaustTempGauge.setValue(carModel.getExhaustTemp());
     lambda.setValue(carModel.getLambdaExhaust());
+    fuelPressureGauge.setValue(carModel.getFuelPressure());
   }
 
   private Gauge createGauge(final Gauge.SkinType TYPE, final double min, final double max, String unit, int decimals) {

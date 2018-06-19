@@ -110,6 +110,10 @@ public class ParseThread extends Thread implements Runnable {
     System.out.println("exhaust temperature: " + exhaustTemp/10);
     carModel.setExhaustTemp(exhaustTemp/10);
 
+    int fuelPressure = data[5];
+    System.out.println("fuel pressure: " + fuelPressure*.05F);
+    carModel.setFuelPressure(fuelPressure*.05F);
+
   }
 
 }
