@@ -28,6 +28,11 @@ dependencies {
     compile group: 'eu.hansolo', name: 'medusa', version: '4.1'
     extraLibs group: 'eu.hansolo', name: 'medusa', version: '4.1'
 
+    // https://mvnrepository.com/artifact/org.jfree/jfreechart
+    compile group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
+    extraLibs group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
+
+
     configurations.compile.extendsFrom(configurations.extraLibs)
 
 }

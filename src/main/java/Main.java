@@ -4,6 +4,7 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.tools.FlowGridPane;
 import eu.hansolo.medusa.Gauge;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -322,22 +323,27 @@ public class Main extends Application implements CarModelListener {
 
   @Override
   public void onCarModelUpdate() {
-    engineSpeed.setValue(carModel.getEngineSpeed());
-    velocityGauge.setValue(carModel.getVelocity());
-    SAindicatorGauge.setValue(carModel.getSteerAngle());
-    throttleValvePosition.setValue(carModel.getThrottleValvePosition());
-    gear.setValue(carModel.getGear());
-    engineOilTemp.setValue(carModel.getEngineOilTemp());
-    engineOilPressureGauge.setValue(carModel.getEngineOilPressure());
-    intakeAirPressureGauge.setValue(carModel.getIntakeAirPressure());
-    intakeAirTempGauge.setValue(carModel.getIntakeAirTemp());
-    batteryVoltage.setValue(carModel.getBatteryVoltage());
-    engineCoolantTempGauge.setValue(carModel.getEngineCoolantTemp());
-    fuelTempGauge.setValue(carModel.getFuelTemp());
-    engineMap.setValue(carModel.getEngineMap());
-    exhaustTempGauge.setValue(carModel.getExhaustTemp());
-    lambda.setValue(carModel.getLambdaExhaust());
-    fuelPressureGauge.setValue(carModel.getFuelPressure());
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        engineSpeed.setValue(carModel.getEngineSpeed());
+        velocityGauge.setValue(carModel.getVelocity());
+        SAindicatorGauge.setValue(carModel.getSteerAngle());
+        throttleValvePosition.setValue(carModel.getThrottleValvePosition());
+        gear.setValue(carModel.getGear());
+        engineOilTemp.setValue(carModel.getEngineOilTemp());
+        engineOilPressureGauge.setValue(carModel.getEngineOilPressure());
+        intakeAirPressureGauge.setValue(carModel.getIntakeAirPressure());
+        intakeAirTempGauge.setValue(carModel.getIntakeAirTemp());
+        batteryVoltage.setValue(carModel.getBatteryVoltage());
+        engineCoolantTempGauge.setValue(carModel.getEngineCoolantTemp());
+        fuelTempGauge.setValue(carModel.getFuelTemp());
+        engineMap.setValue(carModel.getEngineMap());
+        exhaustTempGauge.setValue(carModel.getExhaustTemp());
+        lambda.setValue(carModel.getLambdaExhaust());
+        fuelPressureGauge.setValue(carModel.getFuelPressure());
+      }
+    });
   }
 
   private Gauge createGauge(final Gauge.SkinType TYPE, final double min, final double max, String unit, int decimals) {
