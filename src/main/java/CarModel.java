@@ -34,7 +34,7 @@ public class CarModel {
   // 0 to 15, res: 0.1
   private float batteryVoltage;
 
-  // 0.5 to 1.8, res: 0.001
+  // 0.5 to 1.8, res: 0.00
   private float lambdaExhaust;
 
   // 0 to 100, res: 1

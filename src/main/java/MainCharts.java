@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
@@ -40,6 +41,7 @@ public class MainCharts extends Application implements CarModelListener {
   private CustomChart intakeAirAndFuelTempCustomChart;
   private CustomChart throttleValvePositionCustomChart;
   private CustomChart velocityCustomChart;
+  private Slider steerAngleSlider;
 
   private Label engineSpeedLabel = new Label();
   private Label engineOilPressureLabel = new Label();
@@ -76,7 +78,7 @@ public class MainCharts extends Application implements CarModelListener {
     // Add the Scene to the Stage
     primaryStage.setScene(scene);
     // Set the Title of the Stage
-    primaryStage.setTitle("A Line Chart Example");
+    primaryStage.setTitle("HHN18 telemetry");
     primaryStage.setResizable(false);
     primaryStage.setWidth(width);
     primaryStage.setHeight(height);
@@ -101,6 +103,17 @@ public class MainCharts extends Application implements CarModelListener {
     throttleValvePositionCustomChart = new CustomChart(0, 100, 1, 10, "%", "throttle valve position");
 
     velocityCustomChart = new CustomChart(0, 100, 1, 10, "km/h", "velocity");
+
+    steerAngleSlider = new Slider();
+    steerAngleSlider.setMin(-50);
+    steerAngleSlider.setMax(50);
+    steerAngleSlider.setValue(0);
+    steerAngleSlider.setShowTickLabels(true);
+    steerAngleSlider.setShowTickMarks(true);
+    steerAngleSlider.setMajorTickUnit(50);
+    steerAngleSlider.setMinorTickCount(5);
+    steerAngleSlider.setBlockIncrement(10);
+    steerAngleSlider.setMouseTransparent(true);
 
     grid.add(engineSpeedCustomChart.getChart(), 1, 0);
     grid.add(engineOilAndFuelPressureCustomChart.getChart(), 2, 0);
@@ -136,7 +149,17 @@ public class MainCharts extends Application implements CarModelListener {
           }
         });
 
-    grid.add(serialList, 0, 0);
+//    grid.add(serialList, 0, 0);
+
+    GridPane topLeftGrid = new GridPane();
+    topLeftGrid.add(serialList, 0, 0);
+//    topLeftGrid.add(new Label("steer angle: "), 0, 1);
+//    topLeftGrid.add(steerAngleSlider, 0, 2);
+
+    topLeftGrid.getRowConstraints().add(new RowConstraints());
+    topLeftGrid.getRowConstraints().add(new RowConstraints(50));
+
+    grid.add(topLeftGrid, 0, 0);
 
 
     /*
@@ -146,21 +169,8 @@ public class MainCharts extends Application implements CarModelListener {
     labelStack.setMinHeight(TILE_HEIGHT);
     labelStack.getColumnConstraints().add(new ColumnConstraints(140));
     labelStack.getColumnConstraints().add(new ColumnConstraints(60));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
-    labelStack.getRowConstraints().add(new RowConstraints(30));
+    for(int i = 0; i<15; i++)
+      labelStack.getRowConstraints().add(new RowConstraints(30));
 
     batteryVoltageLabel = new Label();
     engineMapLabel = new Label();
@@ -234,9 +244,7 @@ public class MainCharts extends Application implements CarModelListener {
     long currentTime = System.currentTimeMillis();
     double x = (double) (((long)((currentTime - startTime) / 100))/10);
     if ((currentTime - lastTime) > 500) { // refresh every second
-      Platform.runLater(new Runnable() {
-        @Override
-        public void run() {
+      Platform.runLater(() ->{
           engineSpeedCustomChart.update(x, carModel.getEngineSpeed(), 30, 100);
           engineOilAndFuelPressureCustomChart.update(x, carModel.getEngineOilPressure(), 30, 100);
           engineOilAndFuelPressureCustomChart.update(x, carModel.getFuelPressure());
@@ -250,7 +258,7 @@ public class MainCharts extends Application implements CarModelListener {
           throttleValvePositionCustomChart.update(x, carModel.getThrottleValvePosition(), 30, 100);
           velocityCustomChart.update(x, carModel.getVelocity(), 30, 100);
 
-        }
+          steerAngleSlider.setValue(carModel.getSteerAngle());
       });
 
       lastTime = currentTime;

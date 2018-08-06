@@ -37,18 +37,6 @@ public class DataQueue {
     return tmp;
   }
 
-  public synchronized int getLength(){
-    return data.length;
-  }
-
-  public synchronized int getFirst(){
-    return data[0];
-  }
-
-  public synchronized int getElement(int i){
-    return data[i];
-  }
-
   public synchronized int[] getUntilFF(){
 
     // data array has to be long enough
@@ -56,6 +44,7 @@ public class DataQueue {
 
     // consume until first FF
     while (data[0] != 255 || data[1] != 255){
+      System.out.println("data lost in DataQueue 59");
       pop(1);
       if(data.length<2) return new int[0];
     }
@@ -70,7 +59,7 @@ public class DataQueue {
       }
     }
 
-    if(fIndex > 2){
+    if(fIndex > 1){
       return pop(fIndex);
     }else return new int[0];
 

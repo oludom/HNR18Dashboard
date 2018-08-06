@@ -38,13 +38,13 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.0";
+    gradleVersion = "3.0"
 }
 
 
 jar {
     manifest {
-        attributes 'Main-Class': 'Main'
+        attributes 'Main-Class': 'MainCharts'
     }
     from {
         configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }

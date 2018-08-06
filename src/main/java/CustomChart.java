@@ -8,7 +8,6 @@ public class CustomChart {
 
   private XYChart.Series<Number, Number> seriesOne;
   private XYChart.Series<Number, Number> seriesTwo;
-  private XYChart.Series<Number, Number> seriesThree;
   private NumberAxis xAxis;
   private NumberAxis yAxis;
   private LineChart<Number,Number> chart;

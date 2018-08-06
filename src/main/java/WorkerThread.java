@@ -23,20 +23,16 @@ public class WorkerThread extends Thread implements Runnable{
       if(queue.length <1) continue;
 
 
-      if(queue.length == 8 && queue[2] == 102){
+      if(queue.length >= 8 && queue[2] == 102){
         System.out.println();
         System.out.println("message num: " + queue[2]);
-//        System.arraycopy(queue, 2, queue, 0, 6);
 
         queue = arrayCopy(queue, 2);
         data = queue;
 
-        // no threading here
         parse();
 
-//        ParseThread parseThread = new ParseThread(queue, carModel);
-//        parseThread.start();
-      }else if(queue.length == 8 && queue[2] == 85){
+      }else if(queue.length >= 8 && queue[2] == 85){
         System.out.println();
         System.out.println("message num: " + queue[2]);
 //        System.arraycopy(queue, 2, queue, 0, 6);
@@ -45,11 +41,9 @@ public class WorkerThread extends Thread implements Runnable{
         data = queue;
         parse();
 
-//        ParseThread parseThread = new ParseThread(queue, carModel);
-//        parseThread.start();
       }
       // long message
-      else if(queue.length == 10 && (queue[2] == 17 || queue[2] == 51)){
+      else if(queue.length >= 10 && (queue[2] == 17 || queue[2] == 51)){
           System.out.println();
           System.out.println("message num: " + queue[2]);
           queue = arrayCopy(queue, 2);
@@ -58,8 +52,6 @@ public class WorkerThread extends Thread implements Runnable{
         data = queue;
         parse();
 
-//          ParseThread parseThread = new ParseThread(queue, carModel);
-//          parseThread.start();
       }else {
         // consume faulty message
         System.out.println("ate message!");
@@ -67,26 +59,6 @@ public class WorkerThread extends Thread implements Runnable{
 
 
 
-//
-//      if(dataQueue.getLength() > 5){
-//        if(dataQueue.getFirst() == 3 && dataQueue.getLength() > 7){
-//          int[] data = dataQueue.pop(8);
-//          for(int d : data){
-//            System.out.print(d + " ");
-//          }
-//          System.out.println();
-//          ParseThread parseThread = new ParseThread(data, carModel);
-//          parseThread.start();
-//        }else if(dataQueue.getFirst() == 1 || dataQueue.getFirst() == 2){
-//          int[] data = dataQueue.pop(6);
-//          for(int d : data){
-//            System.out.print(d + " ");
-//          }
-//          System.out.println();
-//          ParseThread parseThread = new ParseThread(data, carModel);
-//          parseThread.start();
-//        }
-//      }
     }
   }
 
